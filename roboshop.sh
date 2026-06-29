@@ -9,14 +9,14 @@ do
     INSTANCE_ID=$(aws ec2 run-instances \
         --image-id ami-0220d79f3f480ecf5 \
         --instance-type t3.micro \
-        --security-groups "roboshop-common" "roboshop-$instance\
+        --security-groups "roboshop-common" "roboshop-$instance" \
         --tag-specifications 'ResourceType=instance,Tags=[{Key=Name,Value=roboshop-$instance}]' \
         --query 'Instances[0].InstanceId' \
         --output text
     )
     echo "Instance_ID: $INSTANCE_ID"
 
-    if [ $instance -eq frontend ]; then
+    if [ $instance == frontend ]; then
         IP=$(aws ec2 describe-instances --instance-ids $INSTANCE_ID \
             --query "Reservations[*].Instances[*].PublicIpAddress" \
             --output text
@@ -27,7 +27,7 @@ do
             --query "Reservations[*].Instances[*].PrivateIpAddress" \
             --output text
         )
-        R53_RECORD=$instance.$DOMAIN_NAME
+        R53_RECORD="$instance.$DOMAIN_NAME"
     fi
 
     #### Updating R53 Record ####
@@ -45,7 +45,7 @@ do
                         "TTL": 1,
                         "ResourceRecords": [
                             {
-                                "Value": "$IP"
+                                "Value": "'$IP'"
                             }
                         ]
                     }
