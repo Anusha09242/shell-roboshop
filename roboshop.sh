@@ -18,10 +18,10 @@ do
     )
     echo "Instance_ID: $INSTANCE_ID"
 
-    if [ "$instance" == "frontend" ]; then
+    if [ $instance == "frontend" ]; then
         IP=$(aws ec2 describe-instances --instance-ids $INSTANCE_ID \
-            --query "Reservations[*].Instances[*].PublicIpAddress" \
-            --output text
+        --query "Reservations[*].Instances[*].PublicIpAddress" \
+        --output text
         )
         R53_RECORD="$DOMAIN_NAME"
     else
@@ -34,7 +34,7 @@ do
 
     #### Updating R53 Record ####
     aws route53 change-resource-record-sets \
-    --hosted-zone-id "$ZONE_ID" \
+    --hosted-zone-id $ZONE_ID \
     --change-batch '
         {
             "Comment": "Update A record to add new IP",
