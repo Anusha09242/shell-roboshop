@@ -6,8 +6,10 @@ DOMAIN_NAME="anu90.shop"
 
 for instance in $@
 do
+    echo "Instance = [$instance]"
+    echo "Security Groups: roboshop-common roboshop-$instance"
     INSTANCE_ID=$(aws ec2 run-instances \
-        --image-id ami-0220d79f3f480ecf5 \
+        --image-id "$AMI_ID" \
         --instance-type t3.micro \
         --security-groups "roboshop-common" "roboshop-$instance" \
         --tag-specifications "ResourceType=instance,Tags=[{Key=Name,Value=roboshop-$instance}]" \
@@ -16,7 +18,7 @@ do
     )
     echo "Instance_ID: $INSTANCE_ID"
 
-    if [ $instance == "frontend" ]; then
+    if [ "$instance" == "frontend" ]; then
         IP=$(aws ec2 describe-instances --instance-ids $INSTANCE_ID \
             --query "Reservations[*].Instances[*].PublicIpAddress" \
             --output text
@@ -32,7 +34,7 @@ do
 
     #### Updating R53 Record ####
     aws route53 change-resource-record-sets \
-    --hosted-zone-id $ZONE_ID \
+    --hosted-zone-id "$ZONE_ID" \
     --change-batch '
         {
             "Comment": "Update A record to add new IP",
