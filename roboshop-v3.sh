@@ -54,10 +54,16 @@ do
             --output text
             )
             echo "Launched Instance: $INSTANCE_ID"
-        elif [ $INSTANCE_ID == "stopped" ]; then
-            echo "roboshop-$instance already stopped: $INSTANCE_ID"
         else
-            echo "roboshop-$instance already running: $INSTANCE_ID"
+            STATE=$(aws ec2 describe-instances \
+            --instance-ids "$INSTANCE_ID" \
+            --query "Reservations[0].Instances[0].State.Name" \
+            --output text)
+            if [ $STATE == "running" ]; then
+                echo "roboshop-$instance already running: $INSTANCE_ID"
+            else
+                echo "roboshop-$instance already stopped: $INSTANCE_ID"
+            fi
         fi
     fi
 
