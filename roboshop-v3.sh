@@ -122,7 +122,7 @@ do
                 --output text)
 
             echo "Current state: $STATE"
-            if [ "$STATE" == "stopped" ] || [ "$STATE" == "running"]; then
+            if [ "$STATE" == "stopped" ] || [ "$STATE" == "running" ]; then
                 echo "Terminating Instance: roboshop-$instance"
                 aws ec2 terminate-instances \
                 --instance-ids $INSTANCE_ID
