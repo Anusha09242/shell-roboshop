@@ -59,10 +59,16 @@ do
             --instance-ids "$INSTANCE_ID" \
             --query "Reservations[0].Instances[0].State.Name" \
             --output text)
-            if [ $STATE == "running" ]; then
-                echo "roboshop-$instance already running: $INSTANCE_ID"
+            if [ $STATE == "stopped" ]; then
+                echo "roboshop-$instance is stopped: $INSTANCE_ID"
+                echo "Starting the instance"
+                aws ec2 start-instances \
+                    --instance-ids "$INSTANCE_ID"
+                aws ec2 wait instance-running \
+                    --instance-ids "$INSTANCE_ID"
+                echo "Instance is now running"
             else
-                echo "roboshop-$instance already stopped: $INSTANCE_ID"
+                echo "roboshop-$instance already running: $INSTANCE_ID"
             fi
         fi
     fi
