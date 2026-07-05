@@ -43,7 +43,7 @@ do
             --image-id $AMI_ID \
             --instance-type t3.micro \
             --security-groups roboshop-common \
-            --tag-specifications 'ResourceType=instance,Tags=[{Key=Name,Value=Test}]' \
+            --tag-specifications 'ResourceType=instance,Tags=[{Key=Name,Value=roboshop-$instance}]' \
             --query 'Instances[0].InstanceId' \
             --output text
             )
