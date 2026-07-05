@@ -6,6 +6,7 @@ sudo chown -R ec2-user:ec2-user $LOGS_FOLDER
 sudo chmod -R 755 $LOGS_FOLDER
 LOGS_FILE="$LOGS_FOLDER/$0.log"
 SCRPT_DIR=$(pwd)
+MYSQL_HOST=mysql.anu90.shop
 
 USERID=$(id -u)
 R="\e[31m"
@@ -27,7 +28,7 @@ VALIDATE(){
     fi
 }
 
-dnf install maven -y
+dnf install maven -y &>> $LOGS_FILE
 VALIDATE $? "Installing Maven"
 
 id roboshop &>> $LOGS_FILE
@@ -60,3 +61,17 @@ VALIDATE $? "Created systemctl service"
 
 dnf install mysql -y &>> $LOGS_FILE
 VALIDATE $? "Installing MySQL client"
+
+mysql -h mysql.anu90.shop -u root -pRoboShop@1 -e "use cities" &>> $LOGS_FILE
+if [ $? -ne 0 ]; then
+    mysql -h $MYSQL_HOST -uroot -pRoboShop@1 < /app/db/schema.sql
+    mysql -h $MYSQL_HOST -uroot -pRoboShop@1 < /app/db/app-user.sql 
+    mysql -h $MYSQL_HOST -uroot -pRoboShop@1 < /app/db/master-data.sql
+    VALIDATE $? "Data loaded"
+else
+    echo -e "Data already loaded... $Y SKIPPING $N"
+fi
+
+systemctl enable shipping 
+systemctl start shipping
+VALIDATE $? "Enabled and Restarted shipping"
