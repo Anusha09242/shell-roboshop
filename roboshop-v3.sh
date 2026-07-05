@@ -44,7 +44,7 @@ do
     echo "INSTANCE: $instance"
     echo "INSTANCE_ID: $INSTANCE_ID"
     if [ "$ACTION" == "create" ]; then
-        if [ $INSTANCE_ID == "None" ]; then
+        if [ "$INSTANCE_ID" == "None" ]; then
             echo "Launching Instance: roboshop-$instance"
             INSTANCE_ID=$(aws ec2 run-instances \
             --image-id $AMI_ID \
@@ -60,7 +60,7 @@ do
             --instance-ids "$INSTANCE_ID" \
             --query "Reservations[0].Instances[0].State.Name" \
             --output text)
-            if [ $STATE == "stopped" ]; then
+            if [ "$STATE" == "stopped" ]; then
                 echo "roboshop-$instance is stopped: $INSTANCE_ID"
                 echo "Starting the instance"
                 aws ec2 start-instances \
@@ -122,7 +122,7 @@ do
                 --output text)
 
             echo "Current state: $STATE"
-            if [ $STATE == "stopped" ]; then
+            if [ "$STATE" == "stopped" ] || [ "$STATE" == "running"]; then
                 echo "Terminating Instance: roboshop-$instance"
                 aws ec2 terminate-instances \
                 --instance-ids $INSTANCE_ID
@@ -156,9 +156,7 @@ do
                         }
                     '
                 echo "Deleted R53 record for $instance"
-            else
-                echo "Instance is running. Stop it first before delete."
-            fi    
+            fi   
         fi
     fi
 done

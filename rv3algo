@@ -1,0 +1,27 @@
+### take this as assignment, create another version of roboshop.sh
+##If create, If instance is stopped, start and update R53 record
+###If delete, If instance is stopped, delete that too and delete R53 records too
+
+if instance found
+    if 
+        instance state is none, we will create
+    else
+        instance state is not none, check the state if its running or stopped
+        if its running 
+            it means it is already created/running
+        else
+            if it is stopped
+            start the instance
+            wait until running
+
+        fi
+    fi
+    update R53 record
+    else delete
+        if instance_id is none, 
+            already destroyed
+        else if it is stopped
+            delete the instance and R53 records
+        else
+            delete the instance and R53 records
+fi
