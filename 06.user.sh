@@ -49,7 +49,7 @@ VALIDATE $? "Make Directory"
 rm -rf /tmp/user.zip
 VALIDATE $? "Removed user zip"
 
-curl -o /tmp/user.zip https://roboshop-artifacts.s3.amazonaws.com/catalogue-v3.zip &>> $LOGS_FILE
+curl -o /tmp/user.zip https://roboshop-artifacts.s3.amazonaws.com/user-v3.zip &>> $LOGS_FILE
 cd /app 
 unzip /tmp/user.zip &>> $LOGS_FILE
 VALIDATE $? "Downloaded and extracted user code"
@@ -57,9 +57,9 @@ VALIDATE $? "Downloaded and extracted user code"
 npm install &>> $LOGS_FILE
 VALIDATE $? "Installing dependencies"
 
-cp $SCRPT_DIR/catalogue.service /etc/systemd/system/catalogue.service
+cp $SCRPT_DIR/user.service /etc/systemd/system/user.service
 VALIDATE $? "Created systemctl service"
 
-systemctl enable catalogue &>> $LOGS_FILE
-systemctl restart catalogue &>> $LOGS_FILE
-VALIDATE $? "Restarting catalogue"
+systemctl enable user &>> $LOGS_FILE
+systemctl restart user &>> $LOGS_FILE
+VALIDATE $? "Restarting user"
