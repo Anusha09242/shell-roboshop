@@ -1,0 +1,19 @@
+Validate the inputs, number of inputs
+validate the first arg, should be either create/delete
+loop through the arguments
+get the instance_id
+if create
+  if 
+    instance_id is none 
+    it means it is not created. so we will create
+  else 
+    instance_id is not none, it means it is already created/running
+  fi
+  then update R53 records
+else delete
+  if instance_id is none, 
+    already destroyed
+  else 
+    instance_id is not none, lets destroy
+  fi
+fi
