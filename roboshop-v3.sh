@@ -28,6 +28,7 @@ if [ "$ACTION" != "create" ] && [ "$ACTION" != "delete" ]; then
     exit 1
 fi
 
+### Get Instance ID ###
 get_instance_id(){
     name=$1
     aws ec2 describe-instances \
@@ -42,7 +43,7 @@ do
     INSTANCE_ID=$(get_instance_id $instance)
     echo "INSTANCE: $instance"
     echo "INSTANCE_ID: $INSTANCE_ID"
-    if [ $ACTION == 'create' ]; then
+    if [ "$ACTION" == "create" ]; then
         if [ $INSTANCE_ID == "None" ]; then
             echo "Launching Instance: roboshop-$instance"
             INSTANCE_ID=$(aws ec2 run-instances \
@@ -115,11 +116,50 @@ do
         if [ $INSTANCE_ID == "None" ]; then
             echo "$instance already destroyed, nothing to do..."
         else
-            aws ec2 terminate-instances \
-            --instance-ids $INSTANCE_ID
-            echo "Terminating Instance: $instance"
+            STATE=$(aws ec2 describe-instances \
+                --instance-ids "$INSTANCE_ID" \
+                --query "Reservations[0].Instances[0].State.Name" \
+                --output text)
+
+            echo "Current state: $STATE"
+            if [ $STATE == "stopped"]; then
+                echo "Terminating Instance: roboshop-$instance"
+                aws ec2 terminate-instances \
+                --instance-ids $INSTANCE_ID
+
+                ### DELETE Route53 record ###
+                if [ "$instance" == "frontend" ]; then
+                R53_RECORD="$DOMAIN_NAME"
+                else
+                    R53_RECORD="$instance.$DOMAIN_NAME"
+                fi
+                aws route53 change-resource-record-sets \
+                    --hosted-zone-id $ZONE_ID \
+                    --change-batch '
+                        {
+                            "Comment": "Delete record",
+                            "Changes": [
+                                {
+                                    "Action": "DELETE",
+                                    "ResourceRecordSet": {
+                                        "Name": "'$R53_RECORD'",
+                                        "Type": "A",
+                                        "TTL": 1,
+                                        "ResourceRecords": [
+                                            {
+                                                "Value": "'$IP'"
+                                            }
+                                        ]
+                                    }
+                                }
+                            ]
+                        }
+                    '
+                echo "Deleted R53 record for $instance"
+            else
+                echo "Instance is running. Stop it first before delete."
+            fi    
         fi
     fi
-
 done
 
