@@ -133,6 +133,13 @@ do
                 else
                     R53_RECORD="$instance.$DOMAIN_NAME"
                 fi
+
+                # Get the existing IP from Route53
+                RECORD_IP=$(aws route53 list-resource-record-sets \
+                    --hosted-zone-id "$ZONE_ID" \
+                    --query "ResourceRecordSets[?Name=='$R53_RECORD.'].ResourceRecords[0].Value" \
+                    --output text)
+
                 aws route53 change-resource-record-sets \
                     --hosted-zone-id $ZONE_ID \
                     --change-batch '
@@ -147,7 +154,7 @@ do
                                         "TTL": 1,
                                         "ResourceRecords": [
                                             {
-                                                "Value": "'$IP'"
+                                                "Value": "'$RECORD_IP'"
                                             }
                                         ]
                                     }
