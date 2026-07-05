@@ -32,8 +32,9 @@ get_instance_id(){
     name=$1
     aws ec2 describe-instances \
     --filters "Name=tag:Name,Values=roboshop-$name" \
-    --query 'Reservations[0].Instances[0].InstanceId' \
-    --output text
+            "Name=instance-state-name,Values=running" \
+	--query 'Reservations[0].Instances[0].InstanceId' \
+	--output text
 }
 
 for instance in $@
@@ -41,11 +42,6 @@ do
     INSTANCE_ID=$(get_instance_id $instance)
     echo "INSTANCE: $instance"
     echo "INSTANCE_ID: $INSTANCE_ID"
-    STATE=$(aws ec2 describe-instances \
-        --instance-ids "$INSTANCE_ID" \
-        --query "Reservations[0].Instances[0].State.Name" \
-        --output text)
 
-    echo "State = $STATE"
 done
 
