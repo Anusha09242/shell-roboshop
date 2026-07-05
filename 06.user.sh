@@ -22,7 +22,6 @@ fi
 VALIDATE(){
     if [ $1 -ne 0 ]; then
         echo -e "$TIMESTAMP [ERROR] $2... $R FAILURE $N " | tee -a $LOGS_FILE
-        exit 1
     else 
         echo -e "$TIMESTAMP [INFO] $2... $G SUCCESS $N " | tee -a $LOGS_FILE
     fi
@@ -47,34 +46,19 @@ VALIDATE $? "Removing existing code"
 mkdir -p /app   &>> $LOGS_FILE
 VALIDATE $? "Make Directory"
 
-rm -rf /tmp/catalogue.zip
-VALIDATE $? "Removing catalogue zip"
+rm -rf /tmp/user.zip
+VALIDATE $? "Removed user zip"
 
-curl -o /tmp/catalogue.zip https://roboshop-artifacts.s3.amazonaws.com/catalogue-v3.zip &>> $LOGS_FILE
+curl -o /tmp/user.zip https://roboshop-artifacts.s3.amazonaws.com/catalogue-v3.zip &>> $LOGS_FILE
 cd /app 
-unzip /tmp/catalogue.zip &>> $LOGS_FILE
-VALIDATE $? "Downloaded and extracted catalogue code"
+unzip /tmp/user.zip &>> $LOGS_FILE
+VALIDATE $? "Downloaded and extracted user code"
 
 npm install &>> $LOGS_FILE
 VALIDATE $? "Installing dependencies"
 
 cp $SCRPT_DIR/catalogue.service /etc/systemd/system/catalogue.service
 VALIDATE $? "Created systemctl service"
-
-cp $SCRPT_DIR/mongo.repo /etc/yum.repos.d/mongo.repo
-VALIDATE $? "Added mongo repo"
-
-dnf install mongodb-mongosh -y &>> $LOGS_FILE
-VALIDATE $? "Installed MongoDB Client"
-
-INDEX=$(mongosh --host mongodb.anu90.shop --eval 'db.getMongo().getDBNames().indexOf("catalogue")')
-
-if [ $INDEX -lt 0 ]; then
-    mongosh --host mongodb.daws90s.shop </app/db/master-data.js &>> $LOGS_FILE
-    VALIDATE $? "Load Products"
-else
-    echo -e "Products already loades... $Y SKIPPING $N"
-fi
 
 systemctl enable catalogue &>> $LOGS_FILE
 systemctl restart catalogue &>> $LOGS_FILE
