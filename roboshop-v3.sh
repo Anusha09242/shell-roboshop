@@ -38,7 +38,6 @@ for instance in $@
 do
     INSTANCE_ID=$(get_instance_id $instance)
     echo "INSTANCE: $instance"
-    echo "INSTANCE_ID: $INSTANCE_ID
-    fi
+    echo "INSTANCE_ID: $INSTANCE_ID"
 done
 
