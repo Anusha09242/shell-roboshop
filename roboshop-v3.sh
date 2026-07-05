@@ -42,13 +42,23 @@ do
     INSTANCE_ID=$(get_instance_id $instance)
     echo "INSTANCE: $instance"
     echo "INSTANCE_ID: $INSTANCE_ID"
-
-    STATE=$(aws ec2 describe-instances \
-        --instance-ids "$INSTANCE_ID" \
-        --query "Reservations[0].Instances[0].State.Name" \
-        --output text)
-
-    echo "STATE: $STATE"
+    if [ $ACTION == 'create' ]; then
+        if [ $INSTANCE_ID == "None" ]; then
+            echo "Launching Instance: roboshop-$instance"
+            INSTANCE_ID=$(aws ec2 run-instances \
+            --image-id $AMI_ID \
+            --instance-type t3.micro \
+            --security-groups "roboshop-common" "roboshop-$instance" \
+            --tag-specifications "ResourceType=instance,Tags=[{Key=Name,Value=roboshop-$instance}]" \
+            --query 'Instances[0].InstanceId' \
+            --output text
+            )
+            echo "Launched Instance: $INSTANCE_ID"
+        elif [ $INSTANCE_ID == "stopped" ]; then
+            echo "roboshop-$instance already stopped: $INSTANCE_ID"
+        else
+            echo "roboshop-$instance already running: $INSTANCE_ID"
+        fi
 
 done
 
