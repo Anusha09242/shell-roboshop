@@ -44,11 +44,11 @@ fi
 rm -rf /app
 VALIDATE $? "Removing existing code"
 
-mkdir -p /app   &>> $LOGS_FILE
-VALIDATE $? "Make Directory"
-
 rm -rf /tmp/catalogue.zip
-VALIDATE $? "Removing catalogue zip"
+VALIDATE $? "Removed catalogue zip"
+
+mkdir -p /app   &>> $LOGS_FILE
+VALIDATE $? "Creating app Directory"
 
 curl -o /tmp/catalogue.zip https://roboshop-artifacts.s3.amazonaws.com/catalogue-v3.zip &>> $LOGS_FILE
 cd /app 
@@ -73,7 +73,7 @@ if [ $INDEX -lt 0 ]; then
     mongosh --host mongodb.anu90.shop </app/db/master-data.js &>> $LOGS_FILE
     VALIDATE $? "Load Products"
 else
-    echo -e "Products already loades... $Y SKIPPING $N"
+    echo -e "Products already loaded... $Y SKIPPING $N"
 fi
 
 systemctl enable catalogue &>> $LOGS_FILE
