@@ -39,5 +39,11 @@ do
     INSTANCE_ID=$(get_instance_id $instance)
     echo "INSTANCE: $instance"
     echo "INSTANCE_ID: $INSTANCE_ID"
+    STATE=$(aws ec2 describe-instances \
+        --instance-ids "$INSTANCE_ID" \
+        --query "Reservations[0].Instances[0].State.Name" \
+        --output text)
+
+    echo "State = $STATE"
 done
 
