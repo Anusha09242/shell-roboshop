@@ -20,7 +20,9 @@ fi
 ###If delete, If instance is stopped, delete that too and delete R53 records too
 
 ACTION=$1
-if [ $ACTION != "create" ] && [ $ACTION != "delete" ]; then
+shift
+
+if [ "$ACTION" != "create" ] && [ "$ACTION" != "delete" ]; then
     echo -e "$R ERROR: First argument must be either create or delete $N"
     echo "USAGE: $0 [create/delete] [instance1] [instance2...]"
     exit 1
