@@ -63,8 +63,10 @@ VALIDATE $? "Created systemctl service"
 cp $SCRPT_DIR/mongo.repo /etc/yum.repos.d/mongo.repo
 VALIDATE $? "Added mongo repo"
 
-dnf install mongodb-mongosh -y
+dnf install mongodb-mongosh -y &>> $LOGS_FILE
 VALIDATE $? "Installed MongoDB Client"
+
+
 
  
 
