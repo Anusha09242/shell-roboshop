@@ -71,6 +71,54 @@ do
                 echo "roboshop-$instance already running: $INSTANCE_ID"
             fi
         fi
+
+        ### update R53 record ###
+        if [ $instance == "frontend" ]; then
+            IP=$(aws ec2 describe-instances --instance-ids $INSTANCE_ID \
+            --query "Reservations[*].Instances[*].PublicIpAddress" \
+            --output text
+            )
+            R53_RECORD="$DOMAIN_NAME"
+        else
+            IP=$(aws ec2 describe-instances --instance-ids $INSTANCE_ID  \
+                --query "Reservations[*].Instances[*].PrivateIpAddress" \
+                --output text
+            )
+            R53_RECORD="$instance.$DOMAIN_NAME"
+        fi
+
+        aws route53 change-resource-record-sets \
+        --hosted-zone-id $ZONE_ID \
+        --change-batch '
+            {
+                "Comment": "Update A record to add new IP",
+                "Changes": [
+                    {
+                        "Action": "UPSERT",
+                        "ResourceRecordSet": {
+                            "Name": "'$R53_RECORD'",
+                            "Type": "A",
+                            "TTL": 1,
+                            "ResourceRecords": [
+                                {
+                                    "Value": "'$IP'"
+                                }
+                            ]
+                        }
+                    }
+                ]
+            }
+
+        '
+        echo "updated R53 record for: $instance"
+    else
+        if [ $INSTANCE_ID == "None" ]; then
+            echo "$instance already destroyed, nothing to do..."
+        else
+            aws ec2 terminate-instances \
+            --instance-ids $INSTANCE_ID
+            echo "Terminating Instance: $instance"
+        fi
     fi
 
 done
