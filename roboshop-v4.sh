@@ -3,7 +3,7 @@
 #export PATH=$PATH:/usr/local/bin
 
 AMI_ID="ami-0220d79f3f480ecf5"
-ZONE_ID="Z07086101C1CVP7AT2UK4" # replace with your zone ID
+ZONE_ID="Z10440783CSR1J1BG02N4" # replace with your zone ID
 DOMAIN_NAME="anu90.shop" # replace with your domain name
 R="\e[31m"
 G="\e[32m"
